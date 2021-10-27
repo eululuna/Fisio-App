@@ -30,6 +30,9 @@ const style = StyleSheet.create({
         borderRadius: 8,
         borderColor: "#1e3464",
         marginBottom: 15
+    },
+    btnAction: {
+        padding: 15
     }
 })
 
