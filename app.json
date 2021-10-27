@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "Fisio",
+    "slug": "Fisio",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "Fisio"
+}
