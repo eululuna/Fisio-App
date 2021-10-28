@@ -9,15 +9,23 @@ export default function Register({ navigation }) {
     return (
         <SafeAreaView>
             <View style={style.screen}>
-                <View style={style.loginHeader}>
+                <View style={style.registerHeader}>
                     <Image style={style.logo}
-                        source={require('./../../assets/logo.png')} />
+                        source={require('./../../../assets/logo.png')} />
 
                     <Text style={style.title}>Crie sua conta!</Text>
                 </View>
                 <TextInput
                     style={style.input}
                     placeholder="Nome"
+                />
+                <TextInput
+                    style={style.input}
+                    placeholder="CPF"
+                />
+                <TextInput
+                    style={style.input}
+                    placeholder="Telefone"
                 />
                 <TextInput
                     style={style.input}

@@ -9,7 +9,7 @@ const style = StyleSheet.create({
         flexDirection: "column",
 
     },
-    loginHeader: {
+    registerHeader: {
         display: "flex",
         flexDirection: "column",
         alignItems: "center"

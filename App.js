@@ -4,25 +4,19 @@ import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import Home from './src/views/Home'
-import Login from './src/views/Login';
+import Home from './src/views/pages/Home'
+import Register from './src/views/auth/Register';
 
 const Stack = createStackNavigator()
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator initialRouteName="Home">
 
         <Stack.Screen
           name="Home"
           component={Home}
-          options={{ headerTintColor: "#1e3464" }}>
-        </Stack.Screen>
-
-        <Stack.Screen
-          name="Login"
-          component={Login}
           options={{ headerTintColor: "#1E3464", title: null }}>
         </Stack.Screen>
 
