@@ -22,6 +22,7 @@ export default function Register({ navigation }) {
                 <TextInput
                     style={style.input}
                     placeholder="CPF"
+                    maxLength="11"
                 />
                 <TextInput
                     style={style.input}
@@ -40,8 +41,8 @@ export default function Register({ navigation }) {
                     style={style.input}
                     placeholder="Confirmar Senha"
                     secureTextEntry />
-                <Button 
-                 style={style.btnAction}
+                <Button
+                    style={style.btnAction}
                     title="Cadastro"
                     onPress={() => { }}
                 />

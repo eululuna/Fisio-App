@@ -32,7 +32,13 @@ const style = StyleSheet.create({
         marginBottom: 15
     },
     btnAction: {
-        padding: 15
+        padding: 20,
+        borderRadius: 5,
+        backgroundColor:"#1e3464",
+        color: "#FFF",
+    },
+    divider: {
+        height: 10
     }
 })
 
