@@ -9,28 +9,29 @@ export default function Home({ navigation }) {
             <View style={style.screen}>
                 <View style={style.homeHeader}>
                     <Image style={style.logo}
-                        source={require('./../../../assets/logo.png')} />
+                        source={require('./../../../../assets/logo.png')} />
                 </View>
+                <View style={style.divider}></View>
                 <Button
                     style={style.btnAction}
-                    title="Agendar"
+                    title="Agendamento"
                     onPress={() => { }}
                 />
+                <View style={style.divider}></View>
                 <Button
                     style={style.btnAction}
-                    title="Remarcar"
+                    title="Prontuário"
                     onPress={() => { }}
                 />
+                <View style={style.divider}></View>
+
                 <Button
                     style={style.btnAction}
-                    title="Ver Anotações"
+                    title="Sessões"
                     onPress={() => { }}
                 />
-                <Button
-                    style={style.btnAction}
-                    title="Lista de Sessões"
-                    onPress={() => { }}
-                />
+                <View style={style.divider}></View>
+
             </View>
         </SafeAreaView>
     )
