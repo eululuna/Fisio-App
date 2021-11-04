@@ -9,7 +9,7 @@ const style = StyleSheet.create({
         flexDirection: "column",
 
     },
-    registerHeader: {
+    homeHeader: {
         display: "flex",
         flexDirection: "column",
         alignItems: "center"
@@ -32,13 +32,7 @@ const style = StyleSheet.create({
         marginBottom: 15
     },
     btnAction: {
-        padding: 15,
-        borderRadius: 5,
-        backgroundColor:"#1e3464",
-        color: "#FFF",
-    },
-    divider: {
-        height: 10
+        padding: 15
     }
 })
 

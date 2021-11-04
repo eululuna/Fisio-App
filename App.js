@@ -4,7 +4,8 @@ import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import Home from './src/views/pages/Home'
+import Home from './src/views/pages/paciente/Home'
+import Login from './src/views/auth/Login'
 import Register from './src/views/auth/Register';
 
 const Stack = createStackNavigator()

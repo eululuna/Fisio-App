@@ -7,7 +7,7 @@ export default function Login({ navigation }) {
     return (
         <SafeAreaView>
             <View style={style.screen}>
-                <View style={style.loginHeader}>
+                <View style={style.registerHeader}>
                     <Image style={style.logo}
                         source={require('./../../../assets/logo.png')} />
 
@@ -28,6 +28,7 @@ export default function Login({ navigation }) {
                     title="Entrar"
                     onPress={() => { }}
                 />
+                <View style={style.divider}></View>
                 <Button
                     style={style.btnAction}
                     title="Cadastrar-se"
