@@ -1,39 +1,55 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet } from 'react-native';
+// App.js
+
+import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import Home from './src/views/pages/paciente/Home'
-import Login from './src/views/auth/Login'
+import Agendamento from './src/views/pages/paciente/Agendamento';
+import Login from './src/views/auth/Login';
 import Register from './src/views/auth/Register';
 
-const Stack = createStackNavigator()
+const Stack = createStackNavigator();
+function NoAuthRoutes() {
+  return (
+    <Stack.Navigator  >
+      <Stack.Screen
+        name="Login"
+        component={Login}
+      />
+            <Stack.Screen
+        name="Register"
+        component={Register}
+      />
+    </Stack.Navigator>
+  );
+}
+function AuthRoutes() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#621FF7',
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+    >
+      <Stack.Screen
+        name="Agendamento"
+        component={Agendamento}
+        options={{ title: 'Agendamento' }}
+      />
+
+    </Stack.Navigator>
+  );
+}
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-
-        <Stack.Screen
-          name="Home"
-          component={Home}
-          options={{ headerTintColor: "#1E3464", title: null }}>
-        </Stack.Screen>
-
-      </Stack.Navigator>
+      <AuthRoutes />
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  header: {
-
-  }
-});
