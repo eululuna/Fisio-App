@@ -2,12 +2,12 @@ import { StyleSheet } from "react-native";
 
 const style = StyleSheet.create({
     screen: {
-        padding: 50,
+        padding: 100,
         paddingLeft: 30,
         paddingRight: 30,
         display: "flex",
         flexDirection: "column",
-
+        justifyContent: "center"
     },
     homeHeader: {
         display: "flex",
