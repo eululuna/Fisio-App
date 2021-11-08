@@ -3,41 +3,29 @@
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import { TouchableOpacity } from 'react-native';
 
 import Agenda from './src/views/Agenda';
 import Lista from './src/views/Lista';
 import Prontuario from './src/views/Prontuario';
+import Paciente from './src/views/Paciente';
 
 import Home from './src/views/Home';
 
 const Stack = createStackNavigator();
 
 
-function NoAuthRoutes() {
+function Routes() {
   return (
-    <Stack.Navigator  >
-      <Stack.Screen
-        name="Login"
-        component={Login}
-      />
-      <Stack.Screen
-        name="Register"
-        component={Register}
-      />
-    </Stack.Navigator>
-  );
-}
 
-
-function AuthRoutes() {
-  return (
     <Stack.Navigator
       initialRouteName="Home"
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#621FF7',
+          backgroundColor: '#1E3464',
         },
-        headerTintColor: '#fff',
+        headerTintColor: '#FFFFFF',
         headerTitleStyle: {
           fontWeight: 'bold',
         },
@@ -47,24 +35,42 @@ function AuthRoutes() {
       <Stack.Screen
         name="Home"
         component={Home}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
+
       <Stack.Screen
         name="Agenda"
         component={Agenda}
-        options={{ title: 'Agenda' }}
+        options={{
+          title: 'Agenda'
+        }}
       />
 
       <Stack.Screen
         name="Lista"
         component={Lista}
-        options={{ title: 'Lista' }}
+        options={({ navigation }) => ({
+          title: 'Pacientes',
+          headerRight: () => (
+            <TouchableOpacity onPress={() =>
+              navigation.navigate('Paciente')
+            }>
+              <Icon name='plus' style={{ marginRight: 20 }} size={20} color='#FFF' />
+            </TouchableOpacity>
+          )
+        })}
       />
 
       <Stack.Screen
         name="Prontuario"
         component={Prontuario}
         options={{ title: 'Prontuario' }}
+      />
+
+      <Stack.Screen
+        name="Paciente"
+        component={Paciente}
+        options={{ title: 'Paciente' }}
       />
 
     </Stack.Navigator>
@@ -74,7 +80,7 @@ function AuthRoutes() {
 export default function App() {
   return (
     <NavigationContainer>
-      <AuthRoutes />
+      <Routes />
     </NavigationContainer>
   );
 }

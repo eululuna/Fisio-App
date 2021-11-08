@@ -1,91 +1,150 @@
-import moment from 'moment';
+import { differenceInYears, format, getUnixTime, fromUnixTime } from 'date-fns'
+
 import React, { Component } from 'react';
-import { Button, StyleSheet, TextInput, ScrollView, ActivityIndicator, View, Text } from 'react-native';
+import { Button, StyleSheet, TextInput, ScrollView, ActivityIndicator, View, Alert, TouchableOpacity } from 'react-native'
+import { Text } from 'react-native-elements'
+import Icon from 'react-native-vector-icons/FontAwesome5'
 import firebase from './../../config/Database/firebase';
 
 class Prontuario extends Component {
 
     constructor() {
         super();
+        this.dbRef = firebase.firestore().collection('paciente')
         this.state = {
             obs: "",
             edit: false,
+            history: [],
             isLoading: false
         };
     }
 
+    stateUpdate = (val, prop) => {
+        const state = this.state;
+        state[prop] = val;
+        this.setState(state);
+    }
+
     componentDidMount() {
-        const dbRef = firebase.firestore().collection('prontuario').doc('teste')
-        dbRef.get().then((res) => {
+        this.stateUpdate(true, 'isLoading')
+        this.dbRef.doc(this.props.route.params.id).get().then((res) => {
             if (res.exists) {
                 const user = res.data();
                 this.setState(
                     this.state = {
+                        ...this.state,
                         key: res.id,
                         name: user.name,
                         email: user.email,
                         mobile: user.mobile,
                         cpf: user.cpf,
                         birthday: user.birthday,
-                        history: user.history,
-                        ...this.state
+                        history: user.history ? user.history : [],
+                        isLoading: false,
+                        edit: false,
+                        obs: ""
                     });
             } else {
+                this.stateUpdate(false, 'isLoading')
                 console.log("Paciente não encontrado!");
             }
         });
     }
 
-
-    inputValueUpdate = (val, prop) => {
-        const state = this.state;
-        state[prop] = val;
-        this.setState(state);
-    }
-
     cancel() {
         this.setState(
             this.state = {
+                ...this.state,
                 obs: "",
                 edit: false,
                 isLoading: false
             });
-        this.props.navigation.pop()
     }
 
-    storeUser() {
+    storeProntuario() {
 
-        if (this.state.obs === '' && this.state.edit) {
-            alert('Insira a informação do prontuário!')
+        if (this.state.obs === "") {
+            this.createAlert()
         } else {
-            this.setState(
-                this.state = {
-                    ...this.state,
-                    isLoading: true
-                }
-            );
-            this.dbRef.add({
-                history: [
+            this.stateUpdate(true, 'isLoading')
+            this.dbRef.doc(this.state.key).set({
+                history: firebase.firestore.FieldValue.arrayUnion(
                     {
                         obs: this.state.obs,
-                        data: moment().format('x')
+                        data: getUnixTime(new Date())
                     }
-                ]
-            }).then((res) => {
-                this.cancel()
+                )
+            }, { merge: true }).then((res) => {
+                this.props.navigation.navigate('Lista')
             }).catch((err) => {
                 console.error("Error found: ", err);
-                this.setState(
-                    this.state = {
-                        ...this.state,
-                        isLoading: false,
-                    }
-                );
+                this.stateUpdate(false, 'isLoading')
             });
         }
     }
 
-    render() {
+    getAge() {
+        return differenceInYears(fromUnixTime(this.state.birthday), new Date()) * -1
+    }
+
+    displayHistory() {
+        if (this.state.history && this.state.history.length > 0) {
+            console.log(this.state.history)
+            return (
+                this.state.history.map((l, i) => (
+                    <View key={i}>
+                        <Text style={styles.textLabel}>Data:</Text>
+                        <Text style={styles.textItem}>{format(fromUnixTime(l.data), 'dd/MM/yyyy')}</Text>
+                        <Text style={styles.textLabel}>Anotação:</Text>
+                        <Text style={styles.textItem}>{l.obs}</Text>
+                        <View style={styles.line}></View>
+                    </View>
+                ))
+            )
+        }
+    }
+    createAlert() {
+        Alert.alert(
+            "FisioApp",
+            'Insira a informação do prontuário!',
+            [{
+                text: "Entendi",
+                onPress: () => console.log("Cancel Pressed"),
+                style: "cancel"
+            },
+            ]
+        );
+    }
+
+    deleteAlert() {
+        Alert.alert(
+            "FisioApp",
+            'Deseja excluir o paciente?',
+            [{
+                text: "Cancelar",
+                onPress: () => console.log("Cancel Pressed"),
+                style: "cancel"
+            },
+            {
+                text: "Excluir",
+                onPress: () => this.deletePaciente(),
+            }
+            ]
+        );
+    }
+
+    deletePaciente() {
+        this.stateUpdate(true, 'isLoading')
+
+        this.dbRef.doc(this.state.key).delete()
+            .then(() => {
+                this.props.navigation.navigate('Lista')
+            })
+    }
+
+
+    render = () => {
+
         if (this.state.isLoading) {
             return (
                 <View style={styles.preloader}>
@@ -96,17 +155,17 @@ class Prontuario extends Component {
         if (!this.state.isLoading && this.state.edit) {
             return (
                 <ScrollView style={styles.container}>
-
+                    <Text style={styles.textLabel}>Anotações:</Text>
                     <View style={styles.inputGroup}>
                         <TextInput
                             multiline={true}
-                            numberOfLines={4}
-                            placeholder={'Observações'}
+                            autoFocus={true}
+                            style={styles.formField}
                             value={this.state.obs}
-                            onChangeText={(val) => this.inputValueUpdate(val, 'obs')}
+                            onChangeText={(val) => this.stateUpdate(val, 'obs')}
                         />
                     </View>
-
+                    <View style={styles.divider10}></View>
                     <View style={styles.button}>
                         <Button
                             title='Salvar Prontuário'
@@ -114,7 +173,7 @@ class Prontuario extends Component {
                             color="#19AC52"
                         />
                     </View>
-
+                    <View style={styles.divider10}></View>
                     <View style={styles.button}>
                         <Button
                             title='Cancelar'
@@ -127,17 +186,48 @@ class Prontuario extends Component {
         }
 
         return (
-            <ScrollView style={styles.container}>
-                <View>
-                    <Text>Prontuário</Text>
+            <ScrollView>
+                <View style={styles.headerList}>
+                    <Text style={styles.headerListTitle}>
+                        <Icon name='user' size={16} color='#555' /> Informações
+                    </Text>
+                    <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                        <TouchableOpacity onPress={() => this.deleteAlert()}>
+                            <Icon name='trash' style={{ marginRight: 20 }} size={18} color='#1e3464' />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() =>
+                            this.props.navigation.navigate('Paciente', {
+                                id: this.state.key
+                            })
+                        }>
+                            <Icon name='edit' size={20} color='#1e3464' />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                <View style={styles.container}>
+                    <Text style={styles.textLabel}>Nome completo:</Text>
+                    <Text style={styles.textItem}>{this.state.name}</Text>
+                    <View style={styles.divider10}></View>
+                    <Text style={styles.textLabel}>Idade:</Text>
+                    <Text style={styles.textItem}>{this.getAge()}</Text>
                 </View>
 
-                <View style={styles.button}>
-                    <Button
-                        title='Atualizar Prontuário'
-                        onPress={() => this.setState(this.state = { ...this.state, edit: true })}
-                        color="#19AC52"
-                    />
+
+                <View style={styles.headerList}>
+                    <Text style={styles.headerListTitle}>
+                        <Icon name='history' size={16} color='#555' /> Histórico
+                    </Text>
+                    <TouchableOpacity onPress={() => this.setState(this.state = { ...this.state, edit: true })}>
+                        <Icon name='plus' size={20} color='#1e3464' />
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.container}>
+                    
+                    {
+                        this.displayHistory()
+                    }
                 </View>
 
             </ScrollView>
@@ -148,7 +238,7 @@ class Prontuario extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 35
+        padding: 15,
     },
     inputGroup: {
         flex: 1,
@@ -166,7 +256,52 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
-    button: {}
+    button: {},
+    line: {
+        height: 10,
+        borderBottomColor: '#777',
+        borderBottomWidth: 0.2,
+        marginBottom: 10
+    },
+    divider10: {
+        height: 10
+    },
+
+    formField: {
+        padding: 12,
+        paddingTop: 12,
+        textAlignVertical: 'top',
+        height: 200,
+        borderRadius: 2,
+        borderWidth: 0.5,
+        borderColor: '#1E3464'
+    },
+
+    textLabel: {
+        fontSize: 12,
+        color: '#555',
+        marginBottom: 5
+    },
+    textItem: {
+        fontSize: 16,
+        color: '#999',
+        fontWeight: '600',
+        marginBottom: 5
+    },
+    headerList: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        padding: 15,
+        paddingTop: 18,
+        paddingBottom: 18,
+    },
+    headerListTitle: {
+        fontWeight: '600',
+        fontSize: 16
+    },
 })
 
 export default Prontuario;

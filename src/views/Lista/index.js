@@ -1,15 +1,18 @@
 import React, { Component } from 'react';
-import { StyleSheet, ScrollView, ActivityIndicator, View } from 'react-native';
-import { ListItem } from 'react-native-elements'
-import db from '../../config/Database/firebase'
+import { StyleSheet, ScrollView, ActivityIndicator, View, TouchableOpacity } from 'react-native';
+import { ListItem, Text } from 'react-native-elements'
+import firebase from '../../config/Database/firebase'
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 class Lista extends Component {
-    dbRef = db.firestore().collection('paciente');
+
     constructor() {
         super();
+        this.dbRef = firebase.firestore().collection('paciente');
+
         this.state = {
-            isLoading: true,
-            userArr: []
+            isLoading: false,
+            pacientArr: []
         };
     }
 
@@ -24,20 +27,45 @@ class Lista extends Component {
     getCollection = (querySnapshot) => {
         const pacientArr = [];
         querySnapshot.forEach((res) => {
-            const { data, id, paciente } = res.data();
-            pacientArr.push({
-                id,
-                data,
-                paciente
-            });
+            pacientArr.push({ id: res.id, ...res.data() });
         });
-        this.setState({
-            pacientArr,
-            isLoading: false,
-        });
+        this.setState(
+            this.state = {
+                isLoading: false,
+                pacientArr: pacientArr
+            }
+        );
+        console.log(this.state.pacientArr)
     }
 
+    listItems() {
+        return (
+            this.state.pacientArr.map((l, i) => (
+                <ListItem
+                    containerStyle={{ backgroundColor: '#fff' }}
+                    style={{ borderBottomColor: '#ccc', borderBottomWidth: 0.8 }}
+                    key={i}
+                    onPress={() => {
+                        this.props.navigation.navigate('Prontuario', {
+                            id: l.id
+                        })
+                    }}>
+                    <ListItem.Content>
+                        <ListItem.Title style={styles.titleList}>{l.name}</ListItem.Title>
+                        <ListItem.Subtitle style={styles.subtitleList}>
+                            <View>
+                                <Text><Icon name='whatsapp' color='#128c7e' /> {l.mobile} </Text>
+                                <Text><Icon name='envelope' color='#555' /> {l.email} </Text>
+                            </View>
+                        </ListItem.Subtitle>
+                    </ListItem.Content>
+                    <ListItem.Chevron />
+                </ListItem>
+            ))
+        );
+    }
     render() {
+
         if (this.state.isLoading) {
             return (
                 <View style={styles.preloader}>
@@ -48,21 +76,7 @@ class Lista extends Component {
         return (
             <ScrollView style={styles.container}>
                 {
-                    this.state.pacientArr.map((item, i) => {
-                        return (
-                            <ListItem
-                                key={i}
-                                chevron
-                                bottomDivider
-                                title={item.paciente}
-                                subtitle={item.data}
-                                onPress={() => {
-                                    this.props.navigation.navigate('Prontuario', {
-                                        prontId: item.id
-                                    });
-                                }} />
-                        );
-                    })
+                    this.listItems()
                 }
             </ScrollView>
         );
@@ -82,7 +96,11 @@ const styles = StyleSheet.create({
         position: 'absolute',
         alignItems: 'center',
         justifyContent: 'center'
-    }
-})
+    },
+
+    headerList: { fontWeight: '600', padding: 12, paddingTop: 18, paddingBottom: 18, backgroundColor: '#eee', fontSize: 16 },
+    titleList: { fontWeight: '700' },
+    subtitleList: { marginTop: 10 }
+});
 
 export default Lista;
