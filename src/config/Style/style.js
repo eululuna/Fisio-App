@@ -1,14 +1,16 @@
 import { StyleSheet } from "react-native";
 
 const style = StyleSheet.create({
-    screen: {
-        padding: 100,
-        paddingLeft: 30,
-        paddingRight: 30,
+    homeScreen: {
+        height: '100%',
+        paddingLeft: 15,
+        paddingRight: 15,
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center"
+        justifyContent: "center",
+        backgroundColor: '#1e3464'
     },
+
     homeHeader: {
         display: "flex",
         flexDirection: "column",
@@ -32,13 +34,21 @@ const style = StyleSheet.create({
         marginBottom: 15
     },
     btnAction: {
-        padding: 20,
-        borderRadius: 5,
-        backgroundColor:"#1e3464",
+        borderRadius: 10,
         color: "#FFF",
+    },
+    textFooter:{
+        color: '#EEE',
+        textAlign: 'center'
     },
     divider: {
         height: 10
+    },
+    divider20: {
+        height: 20
+    },
+    divider50:{
+        height: 50
     }
 })
 

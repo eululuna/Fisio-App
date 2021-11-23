@@ -23,6 +23,7 @@ export default function Home({ navigation }) {
                         navigation.navigate('Agenda')
                     }}
                 />
+
                 <View style={style.divider}></View>
 
 
@@ -34,9 +35,9 @@ export default function Home({ navigation }) {
                         navigation.navigate('Lista')
                     }}
                 />
-              
+
                 <View style={style.divider50}></View>
-                <Text style={style.textFooter}>&copy; {getYear(new Date())} FisioApp</Text>
+                <Text style={style.textFooter}>&copy; {getYear(new Date())} FisioApp </Text>
 
             </View>
         </View>

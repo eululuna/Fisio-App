@@ -12,6 +12,7 @@ import Prontuario from './src/views/Prontuario';
 import Paciente from './src/views/Paciente';
 
 import Home from './src/views/Home';
+import Sessao from './src/views/Sessao';
 
 const Stack = createStackNavigator();
 
@@ -47,6 +48,30 @@ function Routes() {
       />
 
       <Stack.Screen
+        name="Prontuario"
+        component={Prontuario}
+        options={{
+          title: 'Prontuario'
+        }}
+      />
+
+      <Stack.Screen
+        name="Sessao"
+        component={Sessao}
+        options={{
+          title: 'Agenda Sessão'
+        }}
+      />
+
+      <Stack.Screen
+        name="Paciente"
+        component={Paciente}
+        options={{
+          title: 'Paciente'
+        }}
+      />
+
+      <Stack.Screen
         name="Lista"
         component={Lista}
         options={({ navigation }) => ({
@@ -59,18 +84,6 @@ function Routes() {
             </TouchableOpacity>
           )
         })}
-      />
-
-      <Stack.Screen
-        name="Prontuario"
-        component={Prontuario}
-        options={{ title: 'Prontuario' }}
-      />
-
-      <Stack.Screen
-        name="Paciente"
-        component={Paciente}
-        options={{ title: 'Paciente' }}
       />
 
     </Stack.Navigator>

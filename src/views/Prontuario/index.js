@@ -14,11 +14,10 @@ class Prontuario extends Component {
         this.state = {
             obs: "",
             edit: false,
-            history: [],
             isLoading: false
         };
     }
-
+ 
     stateUpdate = (val, prop) => {
         const state = this.state;
         state[prop] = val;
@@ -39,7 +38,7 @@ class Prontuario extends Component {
                         mobile: user.mobile,
                         cpf: user.cpf,
                         birthday: user.birthday,
-                        history: user.history ? user.history : [],
+                        history: user.history,
                         isLoading: false,
                         edit: false,
                         obs: ""
@@ -75,7 +74,7 @@ class Prontuario extends Component {
                     }
                 )
             }, { merge: true }).then((res) => {
-                this.props.navigation.navigate('Lista')
+                this.componentDidMount()
             }).catch((err) => {
                 console.error("Error found: ", err);
                 this.stateUpdate(false, 'isLoading')
@@ -88,8 +87,7 @@ class Prontuario extends Component {
     }
 
     displayHistory() {
-        if (this.state.history && this.state.history.length > 0) {
-            console.log(this.state.history)
+        if (this.state.history && this.state.history.length) {
             return (
                 this.state.history.map((l, i) => (
                     <View key={i}>
@@ -135,7 +133,6 @@ class Prontuario extends Component {
 
     deletePaciente() {
         this.stateUpdate(true, 'isLoading')
-
         this.dbRef.doc(this.state.key).delete()
             .then(() => {
                 this.props.navigation.navigate('Lista')
@@ -144,6 +141,16 @@ class Prontuario extends Component {
 
 
     render = () => {
+
+        this.props.navigation.setOptions({
+            headerRight: () =>
+                <TouchableOpacity onPress={() =>
+                    this.deleteAlert()
+                }>
+                    <Icon name='trash' style={{ marginRight: 20 }} size={18} color='#FFF' />
+                </TouchableOpacity>
+
+        });
 
         if (this.state.isLoading) {
             return (
@@ -191,19 +198,14 @@ class Prontuario extends Component {
                     <Text style={styles.headerListTitle}>
                         <Icon name='user' size={16} color='#555' /> Informações
                     </Text>
-                    <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                        <TouchableOpacity onPress={() => this.deleteAlert()}>
-                            <Icon name='trash' style={{ marginRight: 20 }} size={18} color='#1e3464' />
-                        </TouchableOpacity>
+                    <TouchableOpacity onPress={() =>
+                        this.props.navigation.navigate('Paciente', {
+                            id: this.state.key
+                        })
+                    }>
+                        <Icon name='edit' size={20} color='#1e3464' />
+                    </TouchableOpacity>
 
-                        <TouchableOpacity onPress={() =>
-                            this.props.navigation.navigate('Paciente', {
-                                id: this.state.key
-                            })
-                        }>
-                            <Icon name='edit' size={20} color='#1e3464' />
-                        </TouchableOpacity>
-                    </View>
                 </View>
                 <View style={styles.container}>
                     <Text style={styles.textLabel}>Nome completo:</Text>
@@ -224,7 +226,6 @@ class Prontuario extends Component {
                 </View>
 
                 <View style={styles.container}>
-                    
                     {
                         this.displayHistory()
                     }
