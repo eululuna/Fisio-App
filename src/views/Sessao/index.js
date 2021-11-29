@@ -1,4 +1,4 @@
-import { differenceInYears, format, getUnixTime, parseISO } from 'date-fns'
+import { fromUnixTime, format, getUnixTime, parseISO } from 'date-fns'
 import React, { Component } from 'react';
 import { Button, StyleSheet, TextInput, ScrollView, ActivityIndicator, View, Alert } from 'react-native'
 import { Text } from 'react-native-elements'
@@ -42,12 +42,14 @@ class Sessao extends Component {
                         this.state = {
                             ...this.state,
                             key: res.id,
-                            data: agenda.data,
+                            data: format(fromUnixTime(agenda.data), 'dd/MM/yyyy'),
                             hora: agenda.hora,
                             paciente: agenda.paciente,
                             isLoading: false,
-                            edit: false,
+                            edit: true,
                         });
+
+                    console.log(this.state)
                 } else {
                     this.stateUpdate(false, 'isLoading')
                     console.log("Agenda não encontrada!");
@@ -100,13 +102,28 @@ class Sessao extends Component {
         let y = this.state.data.split('/')[2]
         let m = this.state.data.split('/')[1]
         let d = this.state.data.split('/')[0]
-        return parseISO(`${y}-${m}-${d}`);
+
+        let h = this.state.hora
+        return parseISO(`${y}-${m}-${d} ${h}`);
     }
 
     storeAgenda() {
 
+        if (this.state.data !== "" && this.state.hora !== "") {
+            let dataSessao = getUnixTime(this.formatDate())
+            let dataAtual = getUnixTime(parseISO(format(new Date(), 'yyyy-MM-dd HH:mm')))
+
+            console.log(dataSessao)
+            console.log(dataAtual)
+
+            if (dataSessao <= dataAtual) {
+                return this.createAlert('Verifique a data e hora do agendamento!')
+            }
+        }
+
         if (!this.state.data || this.state.hora === "" || !this.state.paciente) {
-            this.createAlert('Todos os campos são obrigatórios!')
+            return this.createAlert('Todos os campos são obrigatórios!')
+
         } else {
             this.stateUpdate(true, 'isLoading')
             this.dbRef.doc(this.state.key).set({
@@ -184,6 +201,33 @@ class Sessao extends Component {
         }
     }
 
+    fieldPaciente() {
+        if (this.state.edit) {
+            return (
+                <View style={styles.inputGroup}>
+                    <TextInput
+                        style={styles.formField}
+                        value={this.state.pacientesArr[this.state.pacientesArr.findIndex(p => p.value === this.state.paciente.toString())].label}
+                        editable={false}
+                    />
+                    {this.displayError('data')}
+                </View>
+            );
+        }
+        return (
+            <View style={styles.inputGroup}>
+                <RNPickerSelect
+                    placeholder={{ label: "Selecione um item ..." }}
+                    doneText={'Selecionar'}
+                    style={this.inputStyle('paciente'), { ...styles.formField }}
+                    onValueChange={(value) => this.stateUpdate(value, 'paciente')}
+                    items={this.state.pacientesArr}
+                />
+                {this.displayError('paciente')}
+            </View>
+        );
+    }
+
     render() {
 
         if (this.state.isLoading) {
@@ -220,18 +264,10 @@ class Sessao extends Component {
                     {this.displayError('hora')}
                 </View>
                 <Text style={styles.textLabel}>Paciente:</Text>
+                {
+                    this.fieldPaciente()
+                }
 
-                <View style={styles.inputGroup}>
-
-                    <RNPickerSelect
-                        style={this.inputStyle('paciente')}
-                        onValueChange={(value) => this.stateUpdate(value, 'paciente')}
-                        items={this.state.pacientesArr}
-                    />
-
-
-                    {this.displayError('paciente')}
-                </View>
 
                 <View style={styles.divider10}></View>
                 <View style={styles.button}>

@@ -1,4 +1,4 @@
-import { differenceInYears, format, getUnixTime, fromUnixTime } from 'date-fns'
+import { differenceInYears, format, getTime, fromUnixTime, millisecondsToSeconds } from 'date-fns'
 
 import React, { Component } from 'react';
 import { Button, StyleSheet, TextInput, ScrollView, ActivityIndicator, View, Alert, TouchableOpacity } from 'react-native'
@@ -17,7 +17,7 @@ class Prontuario extends Component {
             isLoading: false
         };
     }
- 
+
     stateUpdate = (val, prop) => {
         const state = this.state;
         state[prop] = val;
@@ -25,6 +25,16 @@ class Prontuario extends Component {
     }
 
     componentDidMount() {
+
+        this.props.navigation.setOptions({
+            headerRight: () =>
+                <TouchableOpacity onPress={() =>
+                    this.deleteAlert()
+                }>
+                    <Icon name='trash' style={{ marginRight: 20 }} size={18} color='#FFF' />
+                </TouchableOpacity>
+
+        });
         this.stateUpdate(true, 'isLoading')
         this.dbRef.doc(this.props.route.params.id).get().then((res) => {
             if (res.exists) {
@@ -70,7 +80,7 @@ class Prontuario extends Component {
                 history: firebase.firestore.FieldValue.arrayUnion(
                     {
                         obs: this.state.obs,
-                        data: getUnixTime(new Date())
+                        data: getTime(new Date())
                     }
                 )
             }, { merge: true }).then((res) => {
@@ -83,22 +93,52 @@ class Prontuario extends Component {
     }
 
     getAge() {
-        return differenceInYears(fromUnixTime(this.state.birthday), new Date()) * -1
+        let idade = differenceInYears(fromUnixTime(this.state.birthday), new Date()) * -1
+        return idade === 1 ? idade.toString() + ' ano' : idade.toString() + ' anos'
     }
 
+
+    deleteItem(i) {
+        let history = this.state.history
+        let arr = history.slice(history.findIndex(h => parseInt(h.data) === parseInt(i)),1)
+        console.log(arr)
+        this.stateUpdate(arr, 'history')
+        this.displayHistory()
+    }
+
+
     displayHistory() {
-        if (this.state.history && this.state.history.length) {
+        if (this.state.history && this.state.history.length > 0) {
             return (
                 this.state.history.map((l, i) => (
                     <View key={i}>
-                        <Text style={styles.textLabel}>Data:</Text>
-                        <Text style={styles.textItem}>{format(fromUnixTime(l.data), 'dd/MM/yyyy')}</Text>
-                        <Text style={styles.textLabel}>Anotação:</Text>
-                        <Text style={styles.textItem}>{l.obs}</Text>
+                        <View style={styles.info}>
+                            <View>
+                                <Text style={styles.textLabel}>Data:</Text>
+                                <Text style={styles.textItem}>{format(fromUnixTime(millisecondsToSeconds(l.data)), 'dd/MM/yyyy HH:mm')}</Text>
+                                <View style={styles.divider10}></View>
+                                <Text style={styles.textLabel}>Anotação:</Text>
+                                <Text style={styles.textItem}>{l.obs}</Text>
+
+                            </View>
+                            <View>
+                                <TouchableOpacity onPress={() =>
+                                    this.deleteItem(l.data)
+                                }>
+                                    <Icon name='trash' style={{ marginRight: 2 }} size={18} color='#1e3464' />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
                         <View style={styles.line}></View>
                     </View>
                 ))
             )
+        } else {
+            return (
+                <View>
+                    <Text style={styles.textLabel}>Nenhum registro encontrado!</Text>
+                </View>
+            );
         }
     }
     createAlert() {
@@ -141,16 +181,6 @@ class Prontuario extends Component {
 
 
     render = () => {
-
-        this.props.navigation.setOptions({
-            headerRight: () =>
-                <TouchableOpacity onPress={() =>
-                    this.deleteAlert()
-                }>
-                    <Icon name='trash' style={{ marginRight: 20 }} size={18} color='#FFF' />
-                </TouchableOpacity>
-
-        });
 
         if (this.state.isLoading) {
             return (
@@ -208,11 +238,16 @@ class Prontuario extends Component {
 
                 </View>
                 <View style={styles.container}>
-                    <Text style={styles.textLabel}>Nome completo:</Text>
-                    <Text style={styles.textItem}>{this.state.name}</Text>
-                    <View style={styles.divider10}></View>
-                    <Text style={styles.textLabel}>Idade:</Text>
-                    <Text style={styles.textItem}>{this.getAge()}</Text>
+                    <View style={styles.info}>
+                        <View>
+                            <Text style={styles.textLabel}>Nome completo:</Text>
+                            <Text style={styles.textItem}>{this.state.name}</Text>
+                        </View>
+                        <View>
+                            <Text style={styles.textLabel}>Idade:</Text>
+                            <Text style={styles.textItem}>{this.getAge()}</Text>
+                        </View>
+                    </View>
                 </View>
 
 
@@ -240,6 +275,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 15,
+    },
+    info: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
     },
     inputGroup: {
         flex: 1,

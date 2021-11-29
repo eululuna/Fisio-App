@@ -37,7 +37,7 @@ export default function Home({ navigation }) {
                 />
 
                 <View style={style.divider50}></View>
-                <Text style={style.textFooter}>&copy; {getYear(new Date())} FisioApp </Text>
+                <Text style={style.textFooter}>&copy; {getYear(new Date())} FisioApp</Text>
 
             </View>
         </View>

@@ -1,7 +1,7 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 
-const firebaseConfig = {
+const config = {
   apiKey: "AIzaSyDnrI4nm7_wUmmWRligO7e_JQsrzV3UJJ4",
   authDomain: "fisioapp-ff247.firebaseapp.com",
   projectId: "fisioapp-ff247",
@@ -11,7 +11,7 @@ const firebaseConfig = {
 };
 
 
-firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(config);
 
 firebase.firestore();
 

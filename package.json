@@ -15,7 +15,7 @@
     "expo": "^43.0.2",
     "expo-splash-screen": "^0.13.5",
     "expo-status-bar": "^1.1.0",
-    "expo-updates": "^0.10.13",
+    "expo-updates": "^0.10.15",
     "firebase": "^9.2.0",
     "framer-motion": "^4",
     "react": "17.0.1",

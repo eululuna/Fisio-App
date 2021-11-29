@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import { SafeAreaView, View, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
-import { format, fromUnixTime, startOfHour } from 'date-fns'
+import { format, fromUnixTime, startOfHour, getUnixTime } from 'date-fns'
 import { ListItem, Text } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import firebase from '../../config/Database/firebase'
-import getUnixTime from 'date-fns/getUnixTime';
 
 
 class Agenda extends Component {
@@ -14,13 +13,36 @@ class Agenda extends Component {
         this.dbRef = firebase.firestore().collection('agenda');
         this.dbPacientesRef = firebase.firestore().collection('paciente');
         this.state = {
-            isLoading: false,
+            isLoading: true,
             agendaArr: []
         };
+
+
     }
 
     componentDidMount() {
-        this.stateUpdate(true, 'isLoading')
+        this.getData()
+        this.unsubscribe = this.props.navigation.addListener('focus', () => {
+            this.getData()
+        })
+        this.props.navigation.setOptions({
+            headerRight: () =>
+                <TouchableOpacity onPress={() => {
+                    this.props.navigation.navigate('Sessao')
+                }
+                }>
+                    <Icon name='plus' style={{ marginRight: 20 }} size={20} color='#FFF' />
+                </TouchableOpacity>
+        })
+
+    }
+
+    componentWillUnmount() {
+        this.unsubscribe()
+    }
+
+    getData() {
+        console.log(new Date())
         let tempAgenda = []
         let tempPaciente = []
 
@@ -56,9 +78,14 @@ class Agenda extends Component {
             console.log(this.state.agendaArr)
 
         })
-
     }
 
+    deleteAgenda(id) {
+        this.stateUpdate(true, 'isLoading')
+        this.dbRef.doc(id).delete().then(() => {
+            this.getData()
+        })
+    }
     stateUpdate = (val, prop) => {
         const state = this.state;
         state[prop] = val;
@@ -73,12 +100,18 @@ class Agenda extends Component {
                 rightWidth={80}
                 containerStyle={{ borderRadius: 0, borderBottomWidth: 1, borderBottomColor: '#CCC' }}
                 leftContent={
-                    <TouchableOpacity style={styleAgenda.boxActionEdit} onPressIn={() => { }}>
+                    <TouchableOpacity style={styleAgenda.boxActionEdit} onPressIn={() => {
+                        this.props.navigation.navigate('Sessao', {
+                            id: l.id
+                        })
+                    }}>
                         <Icon name='edit' size={30} color='white' />
                     </TouchableOpacity>
                 }
                 rightContent={
-                    <TouchableOpacity style={styleAgenda.boxActionDelete} onPressIn={() => { }}>
+                    <TouchableOpacity style={styleAgenda.boxActionDelete} onPressIn={() => {
+                        this.deleteAgenda(l.id)
+                    }}>
                         <Icon name='trash' size={30} color='white' />
                     </TouchableOpacity>
                 }
@@ -104,17 +137,6 @@ class Agenda extends Component {
 
     render() {
 
-        this.props.navigation.setOptions({
-            headerRight: () =>
-                <TouchableOpacity onPress={() => {
-                    this.props.navigation.navigate('Sessao')
-                }
-                }>
-                    <Icon name='plus' style={{ marginRight: 20 }} size={20} color='#FFF' />
-                </TouchableOpacity>
-
-        });
-
         if (this.state.isLoading) {
             return (
                 <View style={styleAgenda.preloader}>
@@ -130,6 +152,7 @@ class Agenda extends Component {
                         <Text style={styleAgenda.headerList}><Icon name='clock' size={16} color='#555' /> Próximos agendamentos</Text>
                         {
                             this.state.agendaArr.map((l, i) => {
+
                                 if (getUnixTime(startOfHour(new Date())) < l.data) {
                                     return this.buildList(l, i)
                                 }
@@ -145,6 +168,9 @@ class Agenda extends Component {
                             })
 
                         }
+
+
+
                     </View>
                 </ScrollView>
             </SafeAreaView>
